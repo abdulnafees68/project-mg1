@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "nafees68/angular-minikube:latest"
+        WEB_URL = "http://192.168.49.2:30001" // Replace with your service URL
     }
 
     stages {
@@ -28,6 +29,20 @@ pipeline {
                         echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
                         docker push $DOCKER_IMAGE
                     """
+                }
+            }
+        }
+
+        stage('Check if Webpage is Running') {
+            steps {
+                script {
+                    echo "Checking if webpage is up..."
+                    def response = sh(script: "curl --write-out '%{http_code}' --silent --output /dev/null $WEB_URL", returnStdout: true).trim()
+                    if (response == '200') {
+                        echo "Webpage is up and running!"
+                    } else {
+                        error "Webpage is not accessible. HTTP response code: $response"
+                    }
                 }
             }
         }
