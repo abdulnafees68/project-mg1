@@ -11,7 +11,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Cloning repository...."
-                git credentialsId: 'github-token', url: 'https://github.com/abdulnafees68/project-mg1.git', branch: 'main'
+                git credentialsId: 'github-cred', url: 'https://github.com/abdulnafees68/project-mg1.git', branch: 'main'
             }
         }
 
