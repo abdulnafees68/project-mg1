@@ -11,18 +11,31 @@ pipeline {
             steps {
                 echo "Cloning repository...."
                 git credentialsId: 'github-cred', url: 'https://github.com/abdulnafees68/project-mg1.git', branch: 'main'
+                
+                // List files in the workspace to verify the clone
+                sh "ls -la"
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Install Dependencies') {
+            steps {
+                echo "Installing dependencies..."
+                sh "npm ci"
+            }
+        }
+
+        stage('Build Angular App') {
+            steps {
+                echo "Building Angular app..."
+                sh "npm run build -- --configuration production --build-optimizer --aot"
+            }
+        }
+
+        stage('Build and Push Docker Image') {
             steps {
                 echo "Building Docker image..."
                 sh "docker build -t $DOCKER_IMAGE ."
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
+                
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-password', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
                     echo "Logging in to Docker Hub..."
                     sh """
@@ -33,22 +46,15 @@ pipeline {
             }
         }
 
-       stage('Deploy to Kubernetes') {
-    steps {
-        echo "Deploying to Kubernetes..."
-        sh """
-            kubectl apply -f k8s/deployment.yml
-            kubectl apply -f k8s/service.yml
-        """
-    }
-}
-
-        stage('Verify Kubernetes Deployment') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo "Verifying Kubernetes deployment..."
+                echo "Deploying to Kubernetes..."
                 sh """
-                    kubectl get pods
-                    kubectl get svc
+                    pwd
+                    ls -la
+                    kubectl apply -f k8s/deployment.yml
+                    kubectl apply -f k8s/service.yml
+                    kubectl rollout status deployment/angular-app
                 """
             }
         }
