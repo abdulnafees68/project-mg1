@@ -20,7 +20,8 @@ RUN npm run build --prod
 FROM nginx:alpine
 
 # Copy the built Angular app from the previous stage
-COPY --from=build /app/dist/angular-minikube/browser /usr/share/nginx/html
+COPY --from=build /app/dist/angular-minikube /usr/share/nginx/html
+COPY nginx-custom.conf /etc/nginx/conf.d/default.conf
 
 # Expose the default port
 EXPOSE 80
