@@ -26,7 +26,7 @@ pipeline {
                     echo "Logging in to Docker Hub..."
                     sh """
                     echo "$DOCKER_HUB_PASSWORD" | docker login -u nafees68 --password-stdin
-                    docker push $DOCKER_IMAGE
+                    docker push nafees68/angular-minikube:latest
                     """
                 }
             }
