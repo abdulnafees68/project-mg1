@@ -1,20 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: angular-app
+  name: angular-app  # Name of the deployment
 spec:
-  replicas: 1
+  replicas: 1  # Number of pods to run
   selector:
     matchLabels:
-      app: angular-app
+      app: angular-app  # Matching label for pods
   template:
     metadata:
       labels:
-        app: angular-app
+        app: angular-app  # Matching label for the pods in the deployment
     spec:
       containers:
-        - name: angular-app
-          image: nafees68/angular-minikube:latest
+        - name: angular-app  # Name of the container
+          image: nafees68/angular-minikube:latest  # Docker image for your app
           ports:
-            - containerPort: 80
-
+            - containerPort: 80  # Expose port 80 on the container
