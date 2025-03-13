@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "nafees68/angular-minikube:latest"
-        SONARQUBE_URL = "http://20.9.136.192:9000"  // Update with your SonarQube URL
-        SONARQUBE_TOKEN = credentials('sonarqube-token') // Jenkins credentials for SonarQubee
     }
 
     stages {
@@ -12,22 +10,6 @@ pipeline {
             steps {
                 echo "Cloning repository...."
                 git credentialsId: 'github-cred', url: 'https://github.com/abdulnafees68/project-mg1.git', branch: 'main'
-            }
-        }
-
-        stage('Run SonarQube Analysis') {
-            steps {
-                script {
-                    echo "Running SonarQube analysis..."
-                    sh """
-                        docker run --rm \
-                            -v \$(pwd):/usr/src \
-                            -w /usr/src \
-                            -e SONAR_HOST_URL=$SONARQUBE_URL \
-                            -e SONAR_LOGIN=$SONARQUBE_TOKEN \
-                            sonarsource/sonar-scanner-cli
-                    """
-                }
             }
         }
 
@@ -62,5 +44,5 @@ pipeline {
         failure {
             echo 'Pipeline failed, investigate errors above.'
         }
-    }
+    } 
 }
