@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "nafees68/angular-minikube:latest"
-        WEB_URL = "http://192.168.49.2:30001" // Replace with your service URL
+        ARGOCD_APP_NAME = "angular-app" // Name of the Argo CD application
     }
 
     stages {
@@ -14,6 +14,7 @@ pipeline {
                 
                 // List files in the workspace to verify the clone
                 sh "ls -la"
+                sh "ls -la k8s" // Check if the k8s folder exists
             }
         }
 
@@ -46,32 +47,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Trigger Argo CD Sync') {
             steps {
-                echo "Deploying to Kubernetes..."
-                sh """
-                    pwd
-                    ls -la
-                    kubectl apply -f k8s/deployment.yml
-                    kubectl apply -f k8s/service.yml
-                    kubectl rollout status deployment/angular-app
-                """
-            }
-        }
-
-        stage('Check if Webpage is Running') {
-            steps {
+                echo "Triggering Argo CD sync..."
                 script {
-                    echo "Checking if webpage is up..."
-                    retry(5) {
-                        sleep 10 // Wait for 10 seconds before checking
-                        def response = sh(script: "curl --write-out '%{http_code}' --silent --output /dev/null $WEB_URL", returnStdout: true).trim()
-                        if (response == '200') {
-                            echo "Webpage is up and running!"
-                        } else {
-                            error "Webpage is not accessible. HTTP response code: $response"
-                        }
-                    }
+                    // Use Argo CD CLI or API to trigger a sync
+                    sh """
+                        argocd app sync $ARGOCD_APP_NAME
+                        argocd app wait $ARGOCD_APP_NAME
+                    """
                 }
             }
         }
