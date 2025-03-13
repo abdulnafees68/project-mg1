@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/your-github-username/angular-minikube.git'
+                git 'https://github.com/your-github-username/angular-minikube.git', branch: 'main'
             }
         }
 
