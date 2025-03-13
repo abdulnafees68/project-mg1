@@ -13,24 +13,10 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                echo "Installing dependencies..."
-                sh 'npm install'
-            }
-        }
-
-        stage('Build Angular App') {
-            steps {
-                echo "Building Angular app..."
-                sh 'ng build --configuration production'
-            }
-        }
-
         stage('Package as Docker Image') {
             steps {
                 echo "Building Docker image..."
-                sh "docker build -t $DOCKER_IMAGE ."
+              sh "docker build -t nafees68/angular-minikube:latest ."
             }
         }
 
