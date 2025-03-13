@@ -1,4 +1,4 @@
-# Use the official Node.js image as a base
+# Use the official Node.js image as a base for building the Angular app
 FROM node:18 AS build
 
 # Set the working directory
@@ -14,14 +14,15 @@ RUN npm install
 COPY . .
 
 # Build the Angular app for production
-RUN npm run build --prod
+RUN npm run build -- --configuration production
 
 # Serve the built app using nginx
 FROM nginx:alpine
 
 # Copy the built Angular app from the previous stage
-COPY --from=build /app/dist/angular-minikube/browser /usr/share/nginx/html
-COPY nginx-custom.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/angular-minikube /usr/share/nginx/html
+
+
 
 # Expose the default port
 EXPOSE 80
