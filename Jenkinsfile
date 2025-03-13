@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "nafees68/angular-minikube:latest"
         SONARQUBE_URL = "http://20.9.136.192:9000"  // Update with your SonarQube URL
-        SONARQUBE_TOKEN = credentials('sonarqube-token') // Jenkins credentials for SonarQube
+        SONARQUBE_TOKEN = credentials('sonarqube-token') // Jenkins credentials for SonarQub
     }
 
     stages {
