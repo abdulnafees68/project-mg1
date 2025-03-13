@@ -33,15 +33,38 @@ pipeline {
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "Deploying to Kubernetes..."
+                sh """
+                    kubectl apply -f deployment.yml
+                    kubectl apply -f service.yml
+                """
+            }
+        }
+
+        stage('Verify Kubernetes Deployment') {
+            steps {
+                echo "Verifying Kubernetes deployment..."
+                sh """
+                    kubectl get pods
+                    kubectl get svc
+                """
+            }
+        }
+
         stage('Check if Webpage is Running') {
             steps {
                 script {
                     echo "Checking if webpage is up..."
-                    def response = sh(script: "curl --write-out '%{http_code}' --silent --output /dev/null $WEB_URL", returnStdout: true).trim()
-                    if (response == '200') {
-                        echo "Webpage is up and running!"
-                    } else {
-                        error "Webpage is not accessible. HTTP response code: $response"
+                    retry(5) {
+                        sleep 10 // Wait for 10 seconds before checking
+                        def response = sh(script: "curl --write-out '%{http_code}' --silent --output /dev/null $WEB_URL", returnStdout: true).trim()
+                        if (response == '200') {
+                            echo "Webpage is up and running!"
+                        } else {
+                            error "Webpage is not accessible. HTTP response code: $response"
+                        }
                     }
                 }
             }
@@ -59,5 +82,5 @@ pipeline {
         failure {
             echo 'Pipeline failed, investigate errors above.'
         }
-    } 
+    }
 }
