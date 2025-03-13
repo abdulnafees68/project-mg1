@@ -9,7 +9,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "Cloning repository...."
-                git credentialsId: 'github-token', url: 'https://github.com/your-github-username/angular-minikube.git', branch: 'main'
+                git credentialsId: 'github-token', url: 'https://github.com/nafees68/project-mg1.git', branch: 'main'
             }
         }
 
