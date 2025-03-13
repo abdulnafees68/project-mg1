@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-       DOCKER_IMAGE = "your-dockerhub-username/angular-minikube:latest"
-        SONARQUBE_URL = "http://20.9.136.192:9000" // Update with your SonarQube URL
-        SONARQUBE_TOKEN = credentials('sonarqube-token') // Jenkins credentials for SonarQub
-
+        DOCKER_IMAGE = "nafees68/angular-minikube:latest"
+        SONARQUBE_URL = "http://20.9.136.192:9000"  // Update with your SonarQube URL
+        SONARQUBE_TOKEN = credentials('sonarqube-token') // Jenkins credentials for SonarQube
     }
 
     stages {
@@ -15,13 +14,15 @@ pipeline {
                 git credentialsId: 'github-token', url: 'https://github.com/abdulnafees68/project-mg1.git', branch: 'main'
             }
         }
-             stage('Run SonarQube Analysis') {
+
+        stage('Run SonarQube Analysis') {
             steps {
                 script {
                     echo "Running SonarQube analysis..."
                     sh """
                         docker run --rm \
-                            -v \$(pwd):/mnt \
+                            -v \$(pwd):/usr/src \
+                            -w /usr/src \
                             -e SONAR_HOST_URL=$SONARQUBE_URL \
                             -e SONAR_LOGIN=$SONARQUBE_TOKEN \
                             sonarsource/sonar-scanner-cli
@@ -30,30 +31,29 @@ pipeline {
             }
         }
 
-        stage('Package as Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 echo "Building Docker image..."
-              sh "docker build -t nafees68/angular-minikube:latest ."
+                sh "docker build -t $DOCKER_IMAGE ."
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_HUB_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-password', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
                     echo "Logging in to Docker Hub..."
                     sh """
-                    echo "$DOCKER_HUB_PASSWORD" | docker login -u nafees68 --password-stdin
-                    docker push nafees68/angular-minikube:latest
+                        echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+                        docker push $DOCKER_IMAGE
                     """
                 }
             }
+        }
+    }
 
-
-          
     post {
         always {
             echo 'Cleaning up...'
-            // Clean up any intermediate Docker images if necessary
             sh 'docker system prune -f'
         }
         success {
@@ -61,9 +61,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed, investigate errors above.'
-        }
-    }
-}
         }
     }
 }
