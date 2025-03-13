@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                echo "Cloning repository..."
+                echo "Cloning repository...."
                 git url: 'https://github.com/your-github-username/angular-minikube.git', branch: 'main'
             }
         }
